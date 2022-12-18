@@ -7,15 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CodeGrow-Pro/war_svc.git"
+    "type": "git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/CodeGrow-Pro/war_svc/issues"
+    "url": "https://github.com/CodeGrow-Pro/To-Do-App"
   },
-  "homepage": "https://github.com/CodeGrow-Pro/war_svc#readme",
+  "homepage": "https://github.com/CodeGrow-Pro/To-Do-App",
   "dependencies": {
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
