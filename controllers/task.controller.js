@@ -1,4 +1,5 @@
 const TASK = require('../models/task.model');
+const userModel = require('../models/user.model');
 exports.createTask = async (req,res)=>{
        const body = req.body
        if(!body.title){
@@ -14,6 +15,9 @@ exports.createTask = async (req,res)=>{
        }
        try{
                  const task = await TASK.create(reqData)
+                 const user = await userModel.findOne({userId:req.userId})
+                 user.taskId.push(task._id)
+                 await user.save()
                  return res.status(201).send({
                     message:"Task created successfully!",
                     Task:task
@@ -36,6 +40,12 @@ exports.updateTaskStatus = async (req,res)=>{
                  }
                  if(req.query.iscomplete){
                     task.isComplete = req.query.iscomplete
+                }
+                if(req.body.title){
+                    task.title = req.body.title
+                }
+                if(req.body.description){
+                    task.description = req.body.description
                 }
                 await task.save();
                 return res.status(200).send({
@@ -60,11 +70,35 @@ exports.taskFilter = async (req,res)=>{
             $regex :query.title
         }
     }
+    if(query.iscomplete){
+        reqData.isComplete = query.iscomplete
+    }
     try{
         const task = await TASK.find(reqData);
         return res.status(200).send({
             Tasks:task
          })
+    }catch(err){
+        console.log(err.message)
+        return res.status(500).send({
+            message:"internal server error!"
+        })
+       }
+}
+
+
+exports.deleteTask = async (req,res)=>{
+    const id = req.params.id;
+    try{
+        const task = await TASK.findOneAndDelete({_id:id})
+        if(!task){
+            return res.status(404).send({
+                message:"user does not exists."
+            })
+        }
+        return res.status(200).send({
+            message:"Task deleted successfully! "
+        })
     }catch(err){
         console.log(err.message)
         return res.status(500).send({

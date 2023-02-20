@@ -2,6 +2,7 @@ const userModel = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const key = require('../configs/scretKey')
 const jwt = require('jsonwebtoken')
+const {workerKilling} = require('../cluster')
 const {
     sigup
 } = require('../helpers/user.helper')
@@ -59,5 +60,57 @@ exports.login = async (req, res) => {
         return res.status(500).send({
             message:"Internal server error!"
         })
+     }
+}
+exports.filter = async (req,res)=>{
+    const query = req.query;
+    const reqData = {}
+    if(query.id){
+        reqData._id = query.id;
+    }
+    if(query.name){
+        reqData.name = {
+            $regex :query.name
+        }
+    }
+    if(query.email){
+        reqData.email = query.email
+    }
+    try{
+        const user = await userModel.find(reqData);
+        return res.status(200).send({
+            Users : user
+         })
+    }catch(err){
+        console.log(err.message)
+        return res.status(500).send({
+            message:"internal server error!"
+        })
+       }
+}
+exports.updateUser = async (req,res)=>{
+    try{
+      const user = await userModel.findOne({userId:req.userId});
+           if(!user){
+              return res.status(404).send({
+                  message:"user does not exists!"
+              })
+           }
+          if(req.body.name){
+              user.name = req.body.name
+          }
+          if(req.body.email){
+              user.email = req.body.email
+          }
+          await user.save();
+          return res.status(200).send({
+              message:"user update successfully",
+              updated_user : user
+          })
+    }catch(err){
+      console.log(err.message)
+      return res.status(500).send({
+          message:"internal server error!"
+      })
      }
 }
